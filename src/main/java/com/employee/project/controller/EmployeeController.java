@@ -3,10 +3,12 @@ package com.employee.project.controller;
 import com.employee.project.service.EmployeeService;
 import java.util.List;
 
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,14 +32,17 @@ public class EmployeeController {
 	@GetMapping("/showNewEmployeeForm")
 	public String showNewEmployeeForm(Model model) {
 		// create model attribute to bind form data
-		Employee employee = new Employee();
-		employee.setFirstName("test");
-		model.addAttribute("employee", employee);
+		model.addAttribute("employee", new Employee());
 		return "new_employee";
 	}
 	
 	@PostMapping("/saveEmployee")
-	public String saveEmployee(@ModelAttribute("employee") Employee employee) {
+	public String saveEmployee(@Valid @ModelAttribute("employee") Employee employee,
+			BindingResult result, Model model) {
+
+		if (result.hasErrors()) {
+			return "new_employee";
+		}
 		// save employee to database
 		employeeService.saveEmployee(employee);
 		return "redirect:/";
